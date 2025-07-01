@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マラソンペース換算ツール</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="number"]:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .time-inputs input {
+            width: 60px;
+            text-align: center;
+        }
+        .result {
+            background-color: #e8f5e8;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .result h2 {
+            color: #2e7d32;
+            margin: 0 0 10px 0;
+        }
+        .result .pace {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .calculate-btn:hover {
+            background-color: #45a049;
+        }
+        .mode-toggle {
+            display: flex;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .mode-toggle button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .mode-toggle button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+        .input-section {
+            display: none;
+        }
+        .input-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏃‍♂️ マラソンペース換算ツール</h1>
+        
+        <div class="mode-toggle">
+            <button id="timeToPageBtn" class="active" onclick="switchMode('timeToPace')">タイム → ペース</button>
+            <button id="paceToTimeBtn" onclick="switchMode('paceToTime')">ペース → タイム</button>
+            <button id="timeToDistanceBtn" onclick="switchMode('timeToDistance')">時間・ペース → 距離</button>
+        </div>
+
+        <div id="distanceSelector" class="input-group">
+            <label for="distance">距離を選択:</label>
+            <select id="distance">
+                <option value="100">100m</option>
+                <option value="200">200m</option>
+                <option value="400">400m</option>
+                <option value="500">500m</option>
+                <option value="800">800m</option>
+                <option value="1000">1000m (1km)</option>
+            </select>
+        </div>
+
+        <div id="timeToPaceSection" class="input-section active">
+            <div class="input-group">
+                <label>経過タイム:</label>
+                <div class="time-inputs">
+                    <input type="number" id="minutes" placeholder="分" min="0" max="59">
+                    <span>分</span>
+                    <input type="number" id="seconds" placeholder="秒" min="0" max="59">
+                    <span>秒</span>
+                    <input type="number" id="milliseconds" placeholder="ミリ秒" min="0" max="999">
+                    <span>ミリ秒</span>
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calculatePace()">1kmペースを計算</button>
+        </div>
+
+        <div id="paceToTimeSection" class="input-section">
+            <div class="input-group">
+                <label>1kmペース:</label>
+                <div class="time-inputs">
+                    <input type="number" id="paceMinutes" placeholder="分" min="0" max="59">
+                    <span>分</span>
+                    <input type="number" id="paceSeconds" placeholder="秒" min="0" max="59">
+                    <span>秒</span>
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calculateTime()">経過タイムを計算</button>
+        </div>
+
+        <div id="timeToDistanceSection" class="input-section">
+            <div class="input-group">
+                <label>走行時間:</label>
+                <div class="time-inputs">
+                    <input type="number" id="runMinutes" placeholder="分" min="0">
+                    <span>分</span>
+                    <input type="number" id="runSeconds" placeholder="秒" min="0" max="59">
+                    <span>秒</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>目標ペース (1kmあたり):</label>
+                <div class="time-inputs">
+                    <input type="number" id="targetPaceMinutes" placeholder="分" min="0">
+                    <span>分</span>
+                    <input type="number" id="targetPaceSeconds" placeholder="秒" min="0" max="59">
+                    <span>秒</span>
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calculateDistance()">走行距離を計算</button>
+        </div>
+
+        <div id="result" class="result" style="display: none;">
+            <h2 id="resultTitle">1kmペース</h2>
+            <div class="pace" id="paceResult"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchMode(mode) {
+            const timeToPaceBtn = document.getElementById('timeToPageBtn');
+            const paceToTimeBtn = document.getElementById('paceToTimeBtn');
+            const timeToDistanceBtn = document.getElementById('timeToDistanceBtn');
+            const timeToPaceSection = document.getElementById('timeToPaceSection');
+            const paceToTimeSection = document.getElementById('paceToTimeSection');
+            const timeToDistanceSection = document.getElementById('timeToDistanceSection');
+            const distanceSelector = document.getElementById('distanceSelector');
+            
+            // すべてのボタンとセクションを非アクティブに
+            [timeToPaceBtn, paceToTimeBtn, timeToDistanceBtn].forEach(btn => btn.classList.remove('active'));
+            [timeToPaceSection, paceToTimeSection, timeToDistanceSection].forEach(section => section.classList.remove('active'));
+            
+            if (mode === 'timeToPace') {
+                timeToPaceBtn.classList.add('active');
+                timeToPaceSection.classList.add('active');
+                distanceSelector.style.display = 'block';
+            } else if (mode === 'paceToTime') {
+                paceToTimeBtn.classList.add('active');
+                paceToTimeSection.classList.add('active');
+                distanceSelector.style.display = 'block';
+            } else if (mode === 'timeToDistance') {
+                timeToDistanceBtn.classList.add('active');
+                timeToDistanceSection.classList.add('active');
+                distanceSelector.style.display = 'none';
+            }
+            
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function calculatePace() {
+            const distance = parseInt(document.getElementById('distance').value);
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            const milliseconds = parseInt(document.getElementById('milliseconds').value) || 0;
+            
+            if (minutes === 0 && seconds === 0 && milliseconds === 0) {
+                alert('タイムを入力してください');
+                return;
+            }
+            
+            // 総時間を秒に変換
+            const totalSeconds = minutes * 60 + seconds + milliseconds / 1000;
+            
+            // 1kmあたりの秒数を計算
+            const paceInSeconds = (totalSeconds / distance) * 1000;
+            
+            // 分と秒に変換
+            const paceMinutes = Math.floor(paceInSeconds / 60);
+            const paceSecondsRemainder = Math.round(paceInSeconds % 60);
+            
+            // 結果を表示
+            const resultDiv = document.getElementById('result');
+            const paceResultDiv = document.getElementById('paceResult');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            resultTitle.textContent = '1kmペース';
+            paceResultDiv.textContent = `${paceMinutes}分${paceSecondsRemainder.toString().padStart(2, '0')}秒/km`;
+            resultDiv.style.display = 'block';
+        }
+
+        function calculateTime() {
+            const distance = parseInt(document.getElementById('distance').value);
+            const paceMinutes = parseInt(document.getElementById('paceMinutes').value) || 0;
+            const paceSeconds = parseInt(document.getElementById('paceSeconds').value) || 0;
+            
+            if (paceMinutes === 0 && paceSeconds === 0) {
+                alert('ペースを入力してください');
+                return;
+            }
+            
+            // 1kmペースを秒に変換
+            const paceInSeconds = paceMinutes * 60 + paceSeconds;
+            
+            // 指定距離での経過時間を計算
+            const timeInSeconds = (paceInSeconds / 1000) * distance;
+            
+            // 分、秒、ミリ秒に変換
+            const timeMinutes = Math.floor(timeInSeconds / 60);
+            const timeSecondsRemainder = Math.floor(timeInSeconds % 60);
+            const timeMilliseconds = Math.round((timeInSeconds % 1) * 1000);
+            
+            // 結果を表示
+            const resultDiv = document.getElementById('result');
+            const paceResultDiv = document.getElementById('paceResult');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            resultTitle.textContent = `${distance}m 経過タイム`;
+            let timeText = `${timeMinutes}分${timeSecondsRemainder.toString().padStart(2, '0')}秒`;
+            if (timeMilliseconds > 0) {
+                timeText += `${timeMilliseconds.toString().padStart(3, '0')}`;
+            }
+            paceResultDiv.textContent = timeText;
+            resultDiv.style.display = 'block';
+        }
+
+        function calculateDistance() {
+            const runMinutes = parseInt(document.getElementById('runMinutes').value) || 0;
+            const runSeconds = parseInt(document.getElementById('runSeconds').value) || 0;
+            const targetPaceMinutes = parseInt(document.getElementById('targetPaceMinutes').value) || 0;
+            const targetPaceSeconds = parseInt(document.getElementById('targetPaceSeconds').value) || 0;
+            
+            if ((runMinutes === 0 && runSeconds === 0) || (targetPaceMinutes === 0 && targetPaceSeconds === 0)) {
+                alert('走行時間と目標ペースを入力してください');
+                return;
+            }
+            
+            // 走行時間を秒に変換
+            const totalRunTime = runMinutes * 60 + runSeconds;
+            
+            // 目標ペースを秒に変換
+            const targetPaceInSeconds = targetPaceMinutes * 60 + targetPaceSeconds;
+            
+            // 走行距離を計算 (メートル)
+            const distanceInMeters = (totalRunTime / targetPaceInSeconds) * 1000;
+            
+            // 結果を表示
+            const resultDiv = document.getElementById('result');
+            const paceResultDiv = document.getElementById('paceResult');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            resultTitle.textContent = '走行距離';
+            
+            let distanceText;
+            if (distanceInMeters >= 1000) {
+                const km = (distanceInMeters / 1000).toFixed(2);
+                distanceText = `約 ${km}km`;
+            } else {
+                const meters = Math.round(distanceInMeters);
+                distanceText = `約 ${meters}m`;
+            }
+            
+            paceResultDiv.textContent = distanceText;
+            resultDiv.style.display = 'block';
+        }
+
+        // Enterキーで計算実行
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const timeToPaceSection = document.getElementById('timeToPaceSection');
+                const paceToTimeSection = document.getElementById('paceToTimeSection');
+                const timeToDistanceSection = document.getElementById('timeToDistanceSection');
+                
+                if (timeToPaceSection.classList.contains('active')) {
+                    calculatePace();
+                } else if (paceToTimeSection.classList.contains('active')) {
+                    calculateTime();
+                } else if (timeToDistanceSection.classList.contains('active')) {
+                    calculateDistance();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
