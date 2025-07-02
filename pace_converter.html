@@ -5,44 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マラソンペース換算ツール</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 30px auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         h1 {
-            color: #333;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 2.5em;
+            letter-spacing: -0.02em;
         }
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95em;
+            letter-spacing: 0.01em;
         }
         input[type="number"], select {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
             font-size: 16px;
             box-sizing: border-box;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
         }
         input[type="number"]:focus, select:focus {
-            border-color: #4CAF50;
+            border-color: #667eea;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255,255,255,1);
         }
         .time-inputs {
             display: flex;
@@ -54,57 +73,86 @@
             text-align: center;
         }
         .result {
-            background-color: #e8f5e8;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 30px;
             text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.2);
         }
         .result h2 {
-            color: #2e7d32;
-            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 15px 0;
+            font-weight: 600;
+            font-size: 1.3em;
         }
         .result .pace {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1b5e20;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.01em;
         }
         .calculate-btn {
             width: 100%;
-            padding: 15px;
-            background-color: #4CAF50;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.01em;
         }
         .calculate-btn:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .calculate-btn:active {
+            transform: translateY(0);
         }
         .mode-toggle {
-            display: flex;
-            margin-bottom: 20px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
+            padding: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
         }
         .mode-toggle button {
-            flex: 1;
-            padding: 10px;
+            padding: 12px 8px;
             border: none;
-            background: white;
+            background: transparent;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            color: #374151;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .mode-toggle button.active {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         .mode-toggle button:hover:not(.active) {
-            background-color: #f0f0f0;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
         }
         .input-section {
             display: none;
@@ -121,19 +169,25 @@
         <div class="mode-toggle">
             <button id="timeToPageBtn" class="active" onclick="switchMode('timeToPace')">タイム → ペース</button>
             <button id="paceToTimeBtn" onclick="switchMode('paceToTime')">ペース → タイム</button>
-            <button id="timeToDistanceBtn" onclick="switchMode('timeToDistance')">時間・ペース → 距離</button>
+            <button id="timeToDistanceBtn" onclick="switchMode('timeToDistance')">ペース・時間 → 距離</button>
+            <button id="paceToFinishBtn" onclick="switchMode('paceToFinish')">ペース → フィニッシュタイム</button>
         </div>
 
         <div id="distanceSelector" class="input-group">
             <label for="distance">距離を選択:</label>
-            <select id="distance">
+            <select id="distance" onchange="toggleCustomDistance()">
                 <option value="100">100m</option>
                 <option value="200">200m</option>
                 <option value="400">400m</option>
                 <option value="500">500m</option>
                 <option value="800">800m</option>
-                <option value="1000">1000m (1km)</option>
+                <option value="custom">カスタム距離</option>
             </select>
+        </div>
+
+        <div id="customDistanceInput" class="input-group" style="display: none;">
+            <label for="customDistance">距離を入力 (m):</label>
+            <input type="number" id="customDistance" placeholder="距離をメートルで入力" min="1" step="1">
         </div>
 
         <div id="timeToPaceSection" class="input-section active">
@@ -161,19 +215,25 @@
                     <span>秒</span>
                 </div>
             </div>
+            <div class="input-group">
+                <label for="paceToTimeDistance">距離を選択:</label>
+                <select id="paceToTimeDistance" onchange="toggleCustomDistancePaceToTime()">
+                    <option value="100">100m</option>
+                    <option value="200">200m</option>
+                    <option value="400">400m</option>
+                    <option value="500">500m</option>
+                    <option value="800">800m</option>
+                    <option value="custom">カスタム距離</option>
+                </select>
+            </div>
+            <div id="customDistanceInputPaceToTime" class="input-group" style="display: none;">
+                <label for="customDistancePaceToTime">距離を入力 (m):</label>
+                <input type="number" id="customDistancePaceToTime" placeholder="距離をメートルで入力" min="1" step="1">
+            </div>
             <button class="calculate-btn" onclick="calculateTime()">経過タイムを計算</button>
         </div>
 
         <div id="timeToDistanceSection" class="input-section">
-            <div class="input-group">
-                <label>走行時間:</label>
-                <div class="time-inputs">
-                    <input type="number" id="runMinutes" placeholder="分" min="0">
-                    <span>分</span>
-                    <input type="number" id="runSeconds" placeholder="秒" min="0" max="59">
-                    <span>秒</span>
-                </div>
-            </div>
             <div class="input-group">
                 <label>目標ペース (1kmあたり):</label>
                 <div class="time-inputs">
@@ -183,7 +243,45 @@
                     <span>秒</span>
                 </div>
             </div>
+            <div class="input-group">
+                <label>走行時間:</label>
+                <div class="time-inputs">
+                    <input type="number" id="runMinutes" placeholder="分" min="0">
+                    <span>分</span>
+                    <input type="number" id="runSeconds" placeholder="秒" min="0" max="59">
+                    <span>秒</span>
+                </div>
+            </div>
             <button class="calculate-btn" onclick="calculateDistance()">走行距離を計算</button>
+        </div>
+
+        <div id="paceToFinishSection" class="input-section">
+            <div class="input-group">
+                <label>1kmペース:</label>
+                <div class="time-inputs">
+                    <input type="number" id="finishPaceMinutes" placeholder="分" min="0" max="59">
+                    <span>分</span>
+                    <input type="number" id="finishPaceSeconds" placeholder="秒" min="0" max="59">
+                    <span>秒</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="finishDistance">距離を選択:</label>
+                <select id="finishDistance" onchange="toggleCustomDistanceFinish()">
+                    <option value="1">1km</option>
+                    <option value="3">3km</option>
+                    <option value="5">5km</option>
+                    <option value="10">10km</option>
+                    <option value="21.0975">ハーフマラソン (21.0975km)</option>
+                    <option value="42.195">フルマラソン (42.195km)</option>
+                    <option value="custom">カスタム距離</option>
+                </select>
+            </div>
+            <div id="customDistanceInputFinish" class="input-group" style="display: none;">
+                <label for="customDistanceFinish">距離を入力 (km):</label>
+                <input type="number" id="customDistanceFinish" placeholder="距離をキロメートルで入力" min="0.1" step="0.1">
+            </div>
+            <button class="calculate-btn" onclick="calculateFinishTime()">フィニッシュタイムを計算</button>
         </div>
 
         <div id="result" class="result" style="display: none;">
@@ -193,18 +291,53 @@
     </div>
 
     <script>
+        function toggleCustomDistance() {
+            const distanceSelect = document.getElementById('distance');
+            const customDistanceInput = document.getElementById('customDistanceInput');
+            
+            if (distanceSelect.value === 'custom') {
+                customDistanceInput.style.display = 'block';
+            } else {
+                customDistanceInput.style.display = 'none';
+            }
+        }
+
+        function toggleCustomDistancePaceToTime() {
+            const distanceSelect = document.getElementById('paceToTimeDistance');
+            const customDistanceInput = document.getElementById('customDistanceInputPaceToTime');
+            
+            if (distanceSelect.value === 'custom') {
+                customDistanceInput.style.display = 'block';
+            } else {
+                customDistanceInput.style.display = 'none';
+            }
+        }
+
+        function toggleCustomDistanceFinish() {
+            const distanceSelect = document.getElementById('finishDistance');
+            const customDistanceInput = document.getElementById('customDistanceInputFinish');
+            
+            if (distanceSelect.value === 'custom') {
+                customDistanceInput.style.display = 'block';
+            } else {
+                customDistanceInput.style.display = 'none';
+            }
+        }
+
         function switchMode(mode) {
             const timeToPaceBtn = document.getElementById('timeToPageBtn');
             const paceToTimeBtn = document.getElementById('paceToTimeBtn');
             const timeToDistanceBtn = document.getElementById('timeToDistanceBtn');
+            const paceToFinishBtn = document.getElementById('paceToFinishBtn');
             const timeToPaceSection = document.getElementById('timeToPaceSection');
             const paceToTimeSection = document.getElementById('paceToTimeSection');
             const timeToDistanceSection = document.getElementById('timeToDistanceSection');
+            const paceToFinishSection = document.getElementById('paceToFinishSection');
             const distanceSelector = document.getElementById('distanceSelector');
             
             // すべてのボタンとセクションを非アクティブに
-            [timeToPaceBtn, paceToTimeBtn, timeToDistanceBtn].forEach(btn => btn.classList.remove('active'));
-            [timeToPaceSection, paceToTimeSection, timeToDistanceSection].forEach(section => section.classList.remove('active'));
+            [timeToPaceBtn, paceToTimeBtn, timeToDistanceBtn, paceToFinishBtn].forEach(btn => btn.classList.remove('active'));
+            [timeToPaceSection, paceToTimeSection, timeToDistanceSection, paceToFinishSection].forEach(section => section.classList.remove('active'));
             
             if (mode === 'timeToPace') {
                 timeToPaceBtn.classList.add('active');
@@ -213,10 +346,14 @@
             } else if (mode === 'paceToTime') {
                 paceToTimeBtn.classList.add('active');
                 paceToTimeSection.classList.add('active');
-                distanceSelector.style.display = 'block';
+                distanceSelector.style.display = 'none';
             } else if (mode === 'timeToDistance') {
                 timeToDistanceBtn.classList.add('active');
                 timeToDistanceSection.classList.add('active');
+                distanceSelector.style.display = 'none';
+            } else if (mode === 'paceToFinish') {
+                paceToFinishBtn.classList.add('active');
+                paceToFinishSection.classList.add('active');
                 distanceSelector.style.display = 'none';
             }
             
@@ -224,7 +361,19 @@
         }
 
         function calculatePace() {
-            const distance = parseInt(document.getElementById('distance').value);
+            let distance;
+            const distanceSelect = document.getElementById('distance');
+            
+            if (distanceSelect.value === 'custom') {
+                distance = parseInt(document.getElementById('customDistance').value);
+                if (!distance || distance <= 0) {
+                    alert('有効な距離を入力してください');
+                    return;
+                }
+            } else {
+                distance = parseInt(distanceSelect.value);
+            }
+            
             const minutes = parseInt(document.getElementById('minutes').value) || 0;
             const seconds = parseInt(document.getElementById('seconds').value) || 0;
             const milliseconds = parseInt(document.getElementById('milliseconds').value) || 0;
@@ -255,7 +404,18 @@
         }
 
         function calculateTime() {
-            const distance = parseInt(document.getElementById('distance').value);
+            let distance;
+            const distanceSelect = document.getElementById('paceToTimeDistance');
+            
+            if (distanceSelect.value === 'custom') {
+                distance = parseInt(document.getElementById('customDistancePaceToTime').value);
+                if (!distance || distance <= 0) {
+                    alert('有効な距離を入力してください');
+                    return;
+                }
+            } else {
+                distance = parseInt(distanceSelect.value);
+            }
             const paceMinutes = parseInt(document.getElementById('paceMinutes').value) || 0;
             const paceSeconds = parseInt(document.getElementById('paceSeconds').value) || 0;
             
@@ -329,12 +489,73 @@
             resultDiv.style.display = 'block';
         }
 
+        function calculateFinishTime() {
+            const paceMinutes = parseInt(document.getElementById('finishPaceMinutes').value) || 0;
+            const paceSeconds = parseInt(document.getElementById('finishPaceSeconds').value) || 0;
+            let distance;
+            const distanceSelect = document.getElementById('finishDistance');
+            
+            if (distanceSelect.value === 'custom') {
+                distance = parseFloat(document.getElementById('customDistanceFinish').value);
+                if (!distance || distance <= 0) {
+                    alert('有効な距離を入力してください');
+                    return;
+                }
+            } else {
+                distance = parseFloat(distanceSelect.value);
+            }
+            
+            if (paceMinutes === 0 && paceSeconds === 0) {
+                alert('ペースを入力してください');
+                return;
+            }
+            
+            // 1kmペースを秒に変換
+            const paceInSeconds = paceMinutes * 60 + paceSeconds;
+            
+            // フィニッシュタイムを計算（秒）
+            const finishTimeInSeconds = paceInSeconds * distance;
+            
+            // 時間、分、秒に変換
+            const hours = Math.floor(finishTimeInSeconds / 3600);
+            const minutes = Math.floor((finishTimeInSeconds % 3600) / 60);
+            const seconds = Math.floor(finishTimeInSeconds % 60);
+            
+            // 結果を表示
+            const resultDiv = document.getElementById('result');
+            const paceResultDiv = document.getElementById('paceResult');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            // 距離に応じてタイトルを設定
+            let distanceText;
+            if (distance === 1) distanceText = '1km';
+            else if (distance === 3) distanceText = '3km';
+            else if (distance === 5) distanceText = '5km';
+            else if (distance === 10) distanceText = '10km';
+            else if (distance === 21.0975) distanceText = 'ハーフマラソン';
+            else if (distance === 42.195) distanceText = 'フルマラソン';
+            else distanceText = `${distance}km`;
+            
+            resultTitle.textContent = `${distanceText} フィニッシュタイム`;
+            
+            let timeText;
+            if (hours > 0) {
+                timeText = `${hours}時間${minutes.toString().padStart(2, '0')}分${seconds.toString().padStart(2, '0')}秒`;
+            } else {
+                timeText = `${minutes}分${seconds.toString().padStart(2, '0')}秒`;
+            }
+            
+            paceResultDiv.textContent = timeText;
+            resultDiv.style.display = 'block';
+        }
+
         // Enterキーで計算実行
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const timeToPaceSection = document.getElementById('timeToPaceSection');
                 const paceToTimeSection = document.getElementById('paceToTimeSection');
                 const timeToDistanceSection = document.getElementById('timeToDistanceSection');
+                const paceToFinishSection = document.getElementById('paceToFinishSection');
                 
                 if (timeToPaceSection.classList.contains('active')) {
                     calculatePace();
@@ -342,6 +563,8 @@
                     calculateTime();
                 } else if (timeToDistanceSection.classList.contains('active')) {
                     calculateDistance();
+                } else if (paceToFinishSection.classList.contains('active')) {
+                    calculateFinishTime();
                 }
             }
         });
