@@ -166,8 +166,12 @@
                 padding: 25px;
             }
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
                 margin-bottom: 25px;
+                line-height: 1.3;
+            }
+            .title-break {
+                display: inline;
             }
         }
         .mode-toggle button.active {
@@ -189,7 +193,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏃‍♂️ マラソンペース換算ツール</h1>
+        <h1>🏃‍♂️ <span class="title-text">マラソン<span class="title-break"><br></span>ペース換算ツール</span></h1>
         
         <div class="mode-toggle">
             <button id="timeToPageBtn" class="active" onclick="switchMode('timeToPace')">タイム → ペース</button>
